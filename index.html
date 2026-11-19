@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>買い物リストアプリ</title>
+<style>
+  /* リセット */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 1.5rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background: #fff4e6;
+    color: #5a2e00;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #d35400;
+    text-shadow: 0 1px 2px rgba(211, 84, 0, 0.3);
+  }
+  form {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  input[type="text"] {
+    flex-grow: 2;
+    font-size: 1.4rem;
+    padding: 0.8rem 1rem;
+    border: 2px solid #f39c12;
+    border-radius: 8px;
+    outline-offset: 2px;
+    outline-color: #e67e22;
+    color: #5a2e00;
+    background-color: #fff8f0;
+    min-width: 0;
+  }
+  input[type="text"]:focus {
+    border-color: #e67e22;
+    background-color: #fff2e0;
+  }
+  select {
+    flex-grow: 1;
+    font-size: 1.4rem;
+    padding: 0.8rem 1rem;
+    border: 2px solid #f39c12;
+    border-radius: 8px;
+    outline-offset: 2px;
+    outline-color: #e67e22;
+    color: #5a2e00;
+    background-color: #fff8f0;
+    min-width: 0;
+  }
+  select:focus {
+    border-color: #e67e22;
+    background-color: #fff2e0;
+  }
+  button#addBtn {
+    background-color: #d35400;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.4rem;
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+  }
+  button#addBtn:active {
+    background-color: #a84300;
+  }
+  ul#list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+  }
+  ul#list li {
+    background: #fff3e0;
+    margin-bottom: 0.6rem;
+    padding: 1rem 1.2rem;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgb(211 117 40 / 0.3);
+    user-select: none;
+    word-break: break-word;
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  ul#list li.purchased {
+    text-decoration: line-through;
+    color: #b36b00;
+    background-color: #f9e4cc;
+    box-shadow: none;
+  }
+  ul#list li:active {
+    background-color: #f2c27b;
+  }
+  ul#list li .name {
+    flex-grow: 1;
+  }
+  ul#list li .category {
+    flex-shrink: 0;
+    background-color: #f39c12;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    margin-left: 1rem;
+    user-select: none;
+    white-space: nowrap;
+  }
+  button#clearPurchased {
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.4rem;
+    padding: 0.9rem 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    width: 100%;
+  }
+  button#clearPurchased:disabled {
+    background-color: #f5d1a9;
+    cursor: default;
+  }
+  button#clearPurchased:active:not(:disabled) {
+    background-color: #a75a00;
+  }
+
+  /* スマホ縦画面に最適化 */
+  @media (max-width: 480px) {
+    body {
+      padding: 1.2rem 1rem;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.8rem;
+    }
+    form {
+      gap: 0.6rem;
+    }
+    input[type="text"] {
+      font-size: 1.3rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 7px;
+    }
+    select {
+      font-size: 1.3rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: 7px;
+    }
+    button#addBtn {
+      font-size: 1.3rem;
+      padding: 0.7rem 1rem;
+      border-radius: 7px;
+    }
+    ul#list li {
+      font-size: 1.4rem;
+      padding: 0.9rem 1rem;
+      border-radius: 9px;
+    }
+    ul#list li .category {
+      font-size: 0.9rem;
+      padding: 0.12rem 0.5rem;
+      margin-left: 0.8rem;
+      border-radius: 10px;
+    }
+    button#clearPurchased {
+      font-size: 1.3rem;
+      padding: 0.85rem 1rem;
+      border-radius: 7px;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1>買い物リスト</h1>
+  <form id="form" autocomplete="off" aria-label="買い物リスト入力フォーム">
+    <input type="text" id="itemInput" placeholder="商品名を入力" aria-label="商品名入力" required />
+    <select id="categorySelect" aria-label="カテゴリ選択" required>
+      <option value="食材" selected>食材</option>
+      <option value="日用品">日用品</option>
+      <option value="その他">その他</option>
+    </select>
+    <button type="submit" id="addBtn" aria-label="リストに追加">追加</button>
+  </form>
+  <ul id="list" aria-live="polite" aria-relevant="additions removals"></ul>
+  <button id="clearPurchased" disabled aria-label="購入済みを一括削除">購入済みを一括削除</button>
+
+<script>
+(() => {
+  "use strict";
+  const STORAGE_KEY = "shoppingListItems";
+
+  // 要素取得
+  const form = document.getElementById("form");
+  const input = document.getElementById("itemInput");
+  const categorySelect = document.getElementById("categorySelect");
+  const list = document.getElementById("list");
+  const clearBtn = document.getElementById("clearPurchased");
+
+  // リストデータ構造
+  // {id: string, name: string, category: string, purchased: boolean}
+  let items = [];
+
+  // 保存データを読み込み
+  function loadItems() {
+    try {
+      const json = localStorage.getItem(STORAGE_KEY);
+      if (!json) return [];
+      const data = JSON.parse(json);
+      if (!Array.isArray(data)) return [];
+      // バリデーション簡易的に
+      return data.filter(i => typeof i.id === "string" && typeof i.name === "string" && typeof i.category === "string" && typeof i.purchased === "boolean");
+    } catch {
+      return [];
+    }
+  }
+
+  // 保存
+  function saveItems() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // リストを画面に描画
+  function renderList() {
+    list.innerHTML = "";
+    if (items.length === 0) {
+      const emptyLi = document.createElement("li");
+      emptyLi.textContent = "リストは空です";
+      emptyLi.style.textAlign = "center";
+      emptyLi.style.color = "#a35d00";
+      emptyLi.style.fontSize = "1.2rem";
+      emptyLi.style.userSelect = "none";
+      list.appendChild(emptyLi);
+      clearBtn.disabled = true;
+      return;
+    }
+
+    for (const item of items) {
+      const li = document.createElement("li");
+      li.dataset.id = item.id;
+      if (item.purchased) {
+        li.classList.add("purchased");
+      }
+      li.tabIndex = 0;
+      li.setAttribute("role", "button");
+      li.setAttribute("aria-pressed", item.purchased.toString());
+      li.title = item.purchased ? "購入済み（取り消し線） - タップで未購入に戻す" : "未購入 - タップで購入済みにする";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "name";
+      nameSpan.textContent = item.name;
+
+      const categorySpan = document.createElement("span");
+      categorySpan.className = "category";
+      categorySpan.textContent = item.category;
+
+      li.appendChild(nameSpan);
+      li.appendChild(categorySpan);
+      list.appendChild(li);
+    }
+    updateClearBtn();
+  }
+
+  // 追加処理
+  function addItem(name, category) {
+    name = name.trim();
+    category = category.trim();
+    if (name === "") return;
+    // 重複チェック（大文字小文字区別なし、かつカテゴリも同じ場合のみ重複とみなす）
+    if (items.some(i => i.name.toLowerCase() === name.toLowerCase() && i.category === category)) {
+      alert("同じ商品が既にリストにあります。");
+      return;
+    }
+    const newItem = {
+      id: crypto.randomUUID(),
+      name,
+      category,
+      purchased: false
+    };
+    items.push(newItem);
+    saveItems();
+    renderList();
+  }
+
+  // 購入済みトグル
+  function togglePurchased(id) {
+    const idx = items.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    items[idx].purchased = !items[idx].purchased;
+    saveItems();
+    renderList();
+  }
+
+  // 購入済み一括削除
+  function clearPurchased() {
+    items = items.filter(i => !i.purchased);
+    saveItems();
+    renderList();
+  }
+
+  // 購入済みが1つでもあればボタン活性化
+  function updateClearBtn() {
+    clearBtn.disabled = !items.some(i => i.purchased);
+  }
+
+  // イベント登録
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const val = input.value;
+    const category = categorySelect.value;
+    addItem(val, category);
+    input.value = "";
+    input.focus();
+  });
+
+  // リストクリック・キーボード操作で購入済みトグル
+  list.addEventListener("click", e => {
+    if (e.target.tagName === "LI" && e.target.dataset.id !== undefined) {
+      togglePurchased(e.target.dataset.id);
+      return;
+    }
+    // 子要素クリック時は親LIを探す
+    let li = e.target.closest("li");
+    if (li && li.dataset.id !== undefined) {
+      togglePurchased(li.dataset.id);
+    }
+  });
+  list.addEventListener("keydown", e => {
+    if (e.target.tagName !== "LI" || e.target.dataset.id === undefined) return;
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      togglePurchased(e.target.dataset.id);
+    }
+  });
+
+  // 一括削除ボタン
+  clearBtn.addEventListener("click", () => {
+    if (confirm("購入済みの商品をすべて削除しますか？")) {
+      clearPurchased();
+    }
+  });
+
+  // 初期化
+  function init() {
+    items = loadItems();
+    renderList();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
